@@ -1,0 +1,23 @@
+{
+  "conflicting_vectors": 1914,
+  "rows_removed": 3833,
+  "rows_kept": 1775365,
+  "removed_by_label": {
+    "Benign": 1894,
+    "Infiltration": 1894,
+    "BruteForce-FTP": 14,
+    "DoS-SlowHTTPTest": 12,
+    "BruteForce-SSH": 7,
+    "Web-SQLInjection": 6,
+    "Web-BruteForce": 5,
+    "Web-XSS": 1
+  },
+  "label_combinations": {
+    "Benign | Infiltration": 1894,
+    "BruteForce-FTP | DoS-SlowHTTPTest": 7,
+    "BruteForce-FTP | BruteForce-SSH | DoS-SlowHTTPTest": 5,
+    "Web-BruteForce | Web-SQLInjection": 5,
+    "BruteForce-FTP | BruteForce-SSH": 2,
+    "Web-SQLInjection | Web-XSS": 1
+  }
+}

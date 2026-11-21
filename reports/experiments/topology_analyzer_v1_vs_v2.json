@@ -1,0 +1,15 @@
+{
+  "setup": "Simulation on the real CTU-13 scenario-1 communication graph (607,511 nodes, 737,700 edges): 60 trials per class; 3-10 random busy internal background hosts as 'bots'; centralized = all bots add edges to one new external C&C IP; p2p = each bot adds 60-150 edges to a pool of 400 new peers and edges to half of the other bots; none = no injection (real traffic only).",
+  "v1_no_population_baseline": {
+    "accuracy": 0.3389,
+    "accuracy_by_truth": {"centralized": 0.90, "none": 0.10, "p2p": 0.017},
+    "confusion_rows_truth": {"centralized": {"centralized": 54, "insufficient_evidence": 6}, "none": {"centralized": 54, "insufficient_evidence": 6}, "p2p": {"centralized": 56, "insufficient_evidence": 3, "p2p": 1}},
+    "failure": "destinations shared by most suspects (campus DNS resolver, popular web services) were counted as C&C controllers, so any group of hosts looked centralized"
+  },
+  "v2_population_baseline": {
+    "accuracy": 0.8278,
+    "accuracy_by_truth": {"centralized": 0.833, "none": 0.90, "p2p": 0.75},
+    "confusion_rows_truth": {"centralized": {"centralized": 50, "insufficient_evidence": 6, "p2p": 4}, "none": {"centralized": 6, "insufficient_evidence": 12, "no_coordinated_structure": 42}, "p2p": {"centralized": 4, "insufficient_evidence": 11, "p2p": 45}},
+    "change": "only destinations contacted by <= 5% of the other active internal sources count as evidence (controllers / shared peers)"
+  }
+}

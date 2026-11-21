@@ -1,0 +1,141 @@
+{
+  "flows_total": 4843848,
+  "flows_by_label": {
+    "Background": 4776275,
+    "Normal": 46339,
+    "Botnet": 21234
+  },
+  "flows_by_labelled_host": {
+    "147.32.84.170": 26269,
+    "147.32.84.165": 21234,
+    "147.32.84.164": 11327,
+    "147.32.84.134": 5855,
+    "147.32.87.36": 2488,
+    "147.32.87.11": 245,
+    "147.32.80.9": 155
+  },
+  "capture_start": 1312962413.047277,
+  "capture_end": 1312984447.36834,
+  "infected_top_dst_ports": {
+    "25": 8355,
+    "53": 6694,
+    "80": 2129,
+    "6667": 1349,
+    "65500": 892,
+    "4506": 860,
+    "443": 275,
+    "587": 156,
+    "6251": 131,
+    "5231": 131
+  },
+  "infected_top_destinations": {
+    "209.85.225.27": 965,
+    "212.117.171.138": 892,
+    "212.117.174.7": 860,
+    "174.133.57.141": 727,
+    "173.192.170.88": 439,
+    "209.85.143.27": 347,
+    "205.188.190.1": 253,
+    "66.94.237.64": 220,
+    "147.32.80.9": 218,
+    "205.188.103.1": 216
+  },
+  "split": {
+    "train": {
+      "windows": 51,
+      "rows": 338,
+      "botnet_rows": 36
+    },
+    "val": {
+      "windows": 11,
+      "rows": 76,
+      "botnet_rows": 11
+    },
+    "test": {
+      "windows": 12,
+      "rows": 82,
+      "botnet_rows": 11
+    }
+  },
+  "background_alert_rate": {
+    "Random Forest (host features)": 0.06330472103004292,
+    "Random Forest (host + graph features)": 0.06437768240343347,
+    "Graph + beaconing heuristic rules": 0.23605150214592274,
+    "n_background_host_windows": 932
+  },
+  "beacon_pairs": {
+    "sum": {
+      "Botnet": 5,
+      "Normal": 46
+    },
+    "count": {
+      "Botnet": 326,
+      "Normal": 237
+    }
+  },
+  "graph": {
+    "nodes": 607511,
+    "edges": 737285,
+    "Normal host": {
+      "ip": "147.32.84.170",
+      "out_degree": 302,
+      "in_degree": 301
+    },
+    "Infected host (Neris)": {
+      "ip": "147.32.84.165",
+      "out_degree": 4190,
+      "in_degree": 178
+    }
+  },
+  "topology_real": {
+    "n_suspects": 1,
+    "verdict": "single_host_insufficient_evidence",
+    "indicators": {
+      "population_sources": 481,
+      "popular_destinations_excluded": 20,
+      "controllers": [],
+      "controller_fan_in": {},
+      "shared_rare_peers": 0,
+      "rare_flow_concentration": 0.0462740960966721,
+      "rare_flow_gini": 0.7208473482075565,
+      "suspects_with_intra_links": 0.0,
+      "rare_destination_jaccard": 0.0,
+      "mean_out_degree": 4190.0
+    },
+    "votes": {
+      "centralized": 1,
+      "p2p": 0
+    }
+  },
+  "topology_simulation": {
+    "trials_per_class": 60,
+    "accuracy": 0.8222222222222222,
+    "accuracy_by_truth": {
+      "centralized": 0.85,
+      "none": 0.8666666666666667,
+      "p2p": 0.75
+    },
+    "confusion": {
+      "centralized": {
+        "centralized": 51,
+        "none": 8,
+        "p2p": 3
+      },
+      "insufficient_evidence": {
+        "centralized": 7,
+        "none": 9,
+        "p2p": 12
+      },
+      "no_coordinated_structure": {
+        "centralized": 0,
+        "none": 43,
+        "p2p": 0
+      },
+      "p2p": {
+        "centralized": 2,
+        "none": 0,
+        "p2p": 45
+      }
+    }
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "pcap": "capEC2AMAZ-O4EL3NG-172.31.69.26",
+  "our_flows": 47632,
+  "victim_cnc_flows": 29737,
+  "other_flows": 17895,
+  "csv_bot_rows": 286191,
+  "cnc_size_signature_found_in_csv_bot_rows": 0.49994955778995864,
+  "features_median_within_5pct": 61,
+  "features_compared": 78,
+  "signatures_compared": {
+    "{'Tot Fwd Pkts': 3.0, 'Tot Bwd Pkts': 4.0, 'TotLen Fwd Pkts': 326.0, 'TotLen Bwd Pkts': 129.0, 'Fwd Header Len': 72.0, 'Bwd Header Len': 92.0, 'Init Fwd Win Byts': 8192.0}": {
+      "ours": 14526,
+      "csv": 134976,
+      "disagreeing_features": [
+        "Flow IAT Min",
+        "Fwd IAT Min",
+        "Bwd IAT Min",
+        "Fwd PSH Flags",
+        "Bwd PSH Flags",
+        "Pkt Len Mean",
+        "Pkt Len Var",
+        "FIN Flag Cnt",
+        "SYN Flag Cnt",
+        "RST Flag Cnt",
+        "PSH Flag Cnt",
+        "ACK Flag Cnt",
+        "CWE Flag Count",
+        "Init Bwd Win Byts"
+      ]
+    },
+    "{'Tot Fwd Pkts': 2.0, 'Tot Bwd Pkts': 0.0, 'TotLen Fwd Pkts': 0.0, 'TotLen Bwd Pkts': 0.0, 'Fwd Header Len': 40.0, 'Bwd Header Len': 0.0, 'Init Fwd Win Byts': 2052.0}": {
+      "ours": 13614,
+      "csv": 127801,
+      "disagreeing_features": [
+        "FIN Flag Cnt",
+        "ACK Flag Cnt"
+      ]
+    },
+    "{'Tot Fwd Pkts': 2.0, 'Tot Bwd Pkts': 0.0, 'TotLen Fwd Pkts': 0.0, 'TotLen Bwd Pkts': 0.0, 'Fwd Header Len': 40.0, 'Bwd Header Len': 0.0, 'Init Fwd Win Byts': 256.0}": {
+      "ours": 1243,
+      "csv": 14982,
+      "disagreeing_features": [
+        "FIN Flag Cnt",
+        "ACK Flag Cnt"
+      ]
+    }
+  },
+  "parity_safe_features": [
+    "Dst Port",
+    "Protocol",
+    "Flow Duration",
+    "Tot Fwd Pkts",
+    "Tot Bwd Pkts",
+    "TotLen Fwd Pkts",
+    "TotLen Bwd Pkts",
+    "Fwd Pkt Len Max",
+    "Fwd Pkt Len Min",
+    "Fwd Pkt Len Mean",
+    "Fwd Pkt Len Std",
+    "Bwd Pkt Len Max",
+    "Bwd Pkt Len Min",
+    "Bwd Pkt Len Mean",
+    "Bwd Pkt Len Std",
+    "Flow Byts/s",
+    "Flow Pkts/s",
+    "Flow IAT Mean",
+    "Flow IAT Std",
+    "Flow IAT Max",
+    "Fwd IAT Tot",
+    "Fwd IAT Mean",
+    "Fwd IAT Std",
+    "Fwd IAT Max",
+    "Bwd IAT Tot",
+    "Bwd IAT Mean",
+    "Bwd IAT Std",
+    "Bwd IAT Max",
+    "Fwd URG Flags",
+    "Bwd URG Flags",
+    "Fwd Header Len",
+    "Bwd Header Len",
+    "Fwd Pkts/s",
+    "Bwd Pkts/s",
+    "Pkt Len Min",
+    "Pkt Len Max",
+    "Pkt Len Std",
+    "URG Flag Cnt",
+    "ECE Flag Cnt",
+    "Down/Up Ratio",
+    "Pkt Size Avg",
+    "Fwd Seg Size Avg",
+    "Bwd Seg Size Avg",
+    "Subflow Fwd Pkts",
+    "Subflow Fwd Byts",
+    "Subflow Bwd Pkts",
+    "Subflow Bwd Byts",
+    "Init Fwd Win Byts",
+    "Fwd Act Data Pkts",
+    "Fwd Seg Size Min",
+    "Active Mean",
+    "Active Std",
+    "Active Max",
+    "Active Min",
+    "Idle Mean",
+    "Idle Std",
+    "Idle Max",
+    "Idle Min"
+  ],
+  "other_flows_scored": 2403,
+  "other_flows_single_packet_not_scored": 15492,
+  "cnc_predicted_families": {
+    "Botnet": 0.9999,
+    "BENIGN": 0.0001
+  },
+  "cnc_classified_botnet_share": 0.9998991155799173,
+  "cnc_flagged_anomalous_share": 0.003060160742509332,
+  "other_flows_predicted_families": {
+    "BENIGN": 0.99,
+    "Infiltration": 0.01
+  },
+  "other_flows_flagged_anomalous_share": 0.16645859342488556,
+  "gaussian_target_fpr": 0.01
+}

@@ -1,0 +1,83 @@
+project:
+  seed: 42
+  seeds_for_repeats: [42, 7, 2024]
+
+paths:
+  raw_cicids: data/raw/cicids2018
+  raw_ctu13: data/raw/ctu13
+  external_pcaps: ../data/capture20110810.truncated.pcap
+  interim: data/interim
+  processed: data/processed
+  models: models
+  figures: reports/figures
+  metrics: reports/metrics
+  experiments: reports/experiments
+  logs: logs
+
+cicids:
+  chunksize: 250000
+  # Rows are sampled per fine-grained label so the working set fits in 16 GB RAM.
+  # Rare classes are kept entirely; large classes are capped (uniform random sample).
+  max_rows_per_attack_label: 150000
+  max_benign_rows: 900000
+  split:
+    train: 0.70
+    val: 0.15
+    test: 0.15
+  # Columns that identify a specific capture/host and would leak environment
+  # artefacts rather than behaviour (only present in some daily files).
+  identifier_columns: ["Flow ID", "Src IP", "Src Port", "Dst IP", "Timestamp"]
+
+features:
+  correlation_threshold: 0.98
+  variance_threshold: 0.0
+  top_k_selected: 40
+
+anomaly:
+  log_transform: true
+  covariance_regularization: 1.0e-3
+  epsilon_metric: f1
+
+classifier:
+  uncertain_threshold: 0.60
+
+flow:
+  # CICFlowMeter semantics: a flow ends 120 s after its first packet (activity
+  # timeout) or at a TCP FIN/RST; there is no separate idle timeout, so
+  # idle_timeout_s = flow_timeout_s. Flows with a single packet are never
+  # written by CICFlowMeter, so they are excluded from flow-level scoring
+  # (min_packets_for_scoring) but still used for host-level analysis.
+  flow_timeout_s: 120
+  idle_timeout_s: 120
+  max_active_flows: 200000
+  min_packets_for_scoring: 2
+
+realtime:
+  interface: null
+  bpf_filter: "ip"
+  detection_interval_s: 5
+  host_window_s: 300
+  queue_size: 100000
+  alert_dir: logs/alerts
+
+botnet:
+  beacon_min_connections: 8
+  beacon_cv_threshold: 0.25
+  beacon_min_period_s: 2.0
+  beacon_whitelist_ports: [53, 123]
+  scan_min_unique_ports: 50
+  sweep_min_unique_ips: 50
+  scan_min_failed_ratio: 0.5
+  host_window_s: 300
+
+ctu13:
+  scenario: 1
+  capture_id: CTU-Malware-Capture-Botnet-42
+  pcap: ../data/capture20110810.truncated.pcap/capture20110810.truncated.pcap
+  internal_network: 147.32.0.0/16
+  # Host-level ground truth of CTU-13 scenario 1 as documented by the dataset
+  # authors. The official flow labels (.binetflow) could not be downloaded
+  # (mcfp.felk.cvut.cz unreachable); these IPs are verified against behaviour in
+  # the capture itself (see reports/metrics/ctu13_label_verification.json).
+  infected_hosts: ["147.32.84.165"]
+  normal_hosts: ["147.32.84.170", "147.32.84.134", "147.32.84.164", "147.32.87.36", "147.32.80.9", "147.32.87.11"]

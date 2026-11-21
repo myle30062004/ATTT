@@ -1,0 +1,17 @@
+# raw and processed datasets are never committed
+data/raw/
+data/interim/
+data/processed/
+*.pcap
+*.pcapng
+*.part
+# trained models (reproducible with scripts/train.py)
+models/**/*.joblib
+models/**/*.pt
+# runtime output
+logs/
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+*.pyc
+.venv/

@@ -1,0 +1,12 @@
+{
+  "setup": "LGBMClassifier(n_estimators=300, num_leaves=63, learning_rate=0.1), 7-class family target, 150,000-row random training sample, top-40 ranked features; validation = full validation split",
+  "runs": {
+    "default (min_sum_hessian_in_leaf=1e-3)": {"train_logloss_it10": 0.3328, "train_logloss_it100": 2.0054, "train_logloss_min": 0.1851, "argmin_iteration": 27, "train_logloss_last": 8.2936, "val_macro_f1": 0.6199, "val_benign_fpr": 0.1929},
+    "min_sum_hessian_in_leaf=1": {"train_logloss_it10": 0.3223, "train_logloss_it100": 0.1221, "train_logloss_last": 0.0929, "val_macro_f1": 0.9009, "val_benign_fpr": 0.0220},
+    "min_sum_hessian_in_leaf=10": {"train_logloss_last": 0.1047, "val_macro_f1": 0.9011, "val_benign_fpr": 0.0228},
+    "max_delta_step=1": {"train_logloss_last": 0.0983, "val_macro_f1": 0.8991, "val_benign_fpr": 0.0206},
+    "min_sum_hessian_in_leaf=1 + lambda_l2=1": {"train_logloss_last": 0.0980, "val_macro_f1": 0.9010, "val_benign_fpr": 0.0213},
+    "reference RandomForest(100 trees)": {"train_macro_f1": 0.9996, "val_macro_f1": 0.8802, "val_benign_fpr": 0.0365}
+  },
+  "conclusion": "Training loss rising after iteration 27 shows numerical divergence, not overfitting. Requiring a minimum hessian of 1 per leaf fixes it; adopted as default in src/models/lightgbm_model.py and all LightGBM uses."
+}

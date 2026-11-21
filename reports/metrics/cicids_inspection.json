@@ -1,0 +1,182 @@
+{
+  "files": {
+    "Friday-02-03-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 1048575,
+      "header_rows": 0,
+      "bad_timestamp": 0,
+      "extra_columns": [],
+      "size_bytes": 352368373
+    },
+    "Friday-16-02-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 1048574,
+      "header_rows": 1,
+      "bad_timestamp": 0,
+      "extra_columns": [],
+      "size_bytes": 333723605
+    },
+    "Friday-23-02-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 1048575,
+      "header_rows": 0,
+      "bad_timestamp": 0,
+      "extra_columns": [],
+      "size_bytes": 382840456
+    },
+    "Thuesday-20-02-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 7948748,
+      "header_rows": 0,
+      "bad_timestamp": 0,
+      "extra_columns": [
+        "Flow ID",
+        "Src IP",
+        "Src Port",
+        "Dst IP"
+      ],
+      "size_bytes": 4054925350
+    },
+    "Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 331100,
+      "header_rows": 25,
+      "bad_timestamp": 0,
+      "extra_columns": [],
+      "size_bytes": 107842858
+    },
+    "Thursday-15-02-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 1048575,
+      "header_rows": 0,
+      "bad_timestamp": 0,
+      "extra_columns": [],
+      "size_bytes": 375945899
+    },
+    "Thursday-22-02-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 1048575,
+      "header_rows": 0,
+      "bad_timestamp": 0,
+      "extra_columns": [],
+      "size_bytes": 382636202
+    },
+    "Wednesday-14-02-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 1048575,
+      "header_rows": 0,
+      "bad_timestamp": 0,
+      "extra_columns": [],
+      "size_bytes": 358223333
+    },
+    "Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 1048575,
+      "header_rows": 0,
+      "bad_timestamp": 0,
+      "extra_columns": [],
+      "size_bytes": 328893673
+    },
+    "Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv": {
+      "rows": 613071,
+      "header_rows": 33,
+      "bad_timestamp": 0,
+      "extra_columns": [],
+      "size_bytes": 209249758
+    }
+  },
+  "total_rows": 16232943,
+  "n_feature_columns": 78,
+  "label_counts": {
+    "Benign": 13484708,
+    "DDoS-HOIC": 686012,
+    "DDoS-LOIC-HTTP": 576191,
+    "DoS-Hulk": 461912,
+    "Bot": 286191,
+    "BruteForce-FTP": 193360,
+    "BruteForce-SSH": 187589,
+    "Infiltration": 161934,
+    "DoS-SlowHTTPTest": 139890,
+    "DoS-GoldenEye": 41508,
+    "DoS-Slowloris": 10990,
+    "DDoS-LOIC-UDP": 1730,
+    "Web-BruteForce": 611,
+    "Web-XSS": 230,
+    "Web-SQLInjection": 87
+  },
+  "label_counts_by_day": {
+    "2018-02-14": {
+      "Benign": 667626,
+      "BruteForce-FTP": 193360,
+      "BruteForce-SSH": 187589
+    },
+    "2018-02-15": {
+      "Benign": 996077,
+      "DoS-GoldenEye": 41508,
+      "DoS-Slowloris": 10990
+    },
+    "2018-02-16": {
+      "Benign": 446772,
+      "DoS-SlowHTTPTest": 139890,
+      "DoS-Hulk": 461912
+    },
+    "2018-02-20": {
+      "Benign": 7372557,
+      "DDoS-LOIC-HTTP": 576191
+    },
+    "2018-02-21": {
+      "Benign": 360833,
+      "DDoS-LOIC-UDP": 1730,
+      "DDoS-HOIC": 686012
+    },
+    "2018-02-22": {
+      "Benign": 1048213,
+      "Web-BruteForce": 249,
+      "Web-XSS": 79,
+      "Web-SQLInjection": 34
+    },
+    "2018-02-23": {
+      "Benign": 1048009,
+      "Web-BruteForce": 362,
+      "Web-XSS": 151,
+      "Web-SQLInjection": 53
+    },
+    "2018-02-28": {
+      "Benign": 544200,
+      "Infiltration": 68871
+    },
+    "2018-03-01": {
+      "Benign": 238037,
+      "Infiltration": 93063
+    },
+    "2018-03-02": {
+      "Benign": 762384,
+      "Bot": 286191
+    }
+  },
+  "unique_rows_per_label": {
+    "Benign": 10637200,
+    "Bot": 144535,
+    "DoS-SlowHTTPTest": 55,
+    "DoS-Hulk": 145199,
+    "Web-BruteForce": 555,
+    "Web-XSS": 228,
+    "Web-SQLInjection": 84,
+    "DDoS-LOIC-HTTP": 575364,
+    "Infiltration": 140610,
+    "DoS-GoldenEye": 41406,
+    "DoS-Slowloris": 9908,
+    "BruteForce-FTP": 54,
+    "BruteForce-SSH": 94048,
+    "DDoS-LOIC-UDP": 1730,
+    "DDoS-HOIC": 198861
+  },
+  "duplicate_rows_features_and_label": 4243106,
+  "unique_rows_features_and_label": 11989837,
+  "conflicting_label_feature_vectors": 22359,
+  "rows_in_conflicting_vectors": 423290,
+  "total_nan_cells": 59721,
+  "total_pos_inf_cells": 131799,
+  "total_neg_inf_cells": 0,
+  "constant_columns": [
+    "Bwd PSH Flags",
+    "Bwd URG Flags",
+    "Fwd Byts/b Avg",
+    "Fwd Pkts/b Avg",
+    "Fwd Blk Rate Avg",
+    "Bwd Byts/b Avg",
+    "Bwd Pkts/b Avg",
+    "Bwd Blk Rate Avg"
+  ]
+}

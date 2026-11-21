@@ -1,0 +1,79 @@
+feature,median_ours,median_cicflowmeter,relative_diff,not_reproduced_by_design
+Bwd Header Len,20.0,0.0,20.0,False
+Bwd Pkts/s,14.950650215148926,0.0,14.950650215148926,False
+Init Fwd Win Byts,8192.0,2053.0,2.990258158792012,False
+Fwd Pkts/s,1584.550048828125,501.2028869,2.161494257602459,False
+ACK Flag Cnt,2.0,0.0,2.0,False
+Flow IAT Min,385.0460205078125,160.0,1.4065376281738282,False
+Flow Pkts/s,2214.521728515625,1007.194245,1.1987037153053082,False
+SYN Flag Cnt,1.0,0.0,1.0,False
+Tot Bwd Pkts,1.0,0.0,1.0,False
+FIN Flag Cnt,1.0,0.0,1.0,False
+Init Bwd Win Byts,0.0,-1.0,1.0,False
+Flow IAT Std,0.0,1437.712499,1.0,False
+Subflow Bwd Pkts,1.0,0.0,1.0,False
+Down/Up Ratio,1.0,0.0,1.0,False
+Flow IAT Mean,838.9949951171875,1133.785714,0.26000567412583625,False
+Flow IAT Max,5734.205078125,6292.0,0.08865144975762873,False
+Flow Duration,6924.15234375,7459.0,0.07170500821155651,False
+Fwd IAT Tot,549.0780029296875,528.0,0.03992046009410511,False
+Fwd IAT Max,517.8451538085938,503.0,0.029513228247701292,False
+Fwd IAT Mean,447.988525390625,451.0,0.006677327293514413,False
+Fwd IAT Min,413.8946533203125,414.0,0.000254460578955314,False
+Fwd Pkt Len Std,0.0,0.0,0.0,False
+TotLen Fwd Pkts,0.0,0.0,0.0,False
+Tot Fwd Pkts,2.0,2.0,0.0,False
+Dst Port,8080.0,8080.0,0.0,False
+Protocol,6.0,6.0,0.0,False
+Fwd Pkt Len Mean,0.0,0.0,0.0,False
+Fwd Pkt Len Min,0.0,0.0,0.0,False
+Fwd Pkt Len Max,0.0,0.0,0.0,False
+TotLen Bwd Pkts,0.0,0.0,0.0,False
+Bwd Pkt Len Mean,0.0,0.0,0.0,False
+Bwd Pkt Len Min,0.0,0.0,0.0,False
+Bwd Pkt Len Max,0.0,0.0,0.0,False
+Bwd IAT Mean,0.0,0.0,0.0,False
+Bwd IAT Max,0.0,0.0,0.0,False
+Bwd IAT Std,0.0,0.0,0.0,False
+Bwd IAT Min,0.0,0.0,0.0,False
+Fwd PSH Flags,0.0,0.0,0.0,False
+Bwd URG Flags,0.0,0.0,0.0,False
+Fwd Header Len,40.0,40.0,0.0,False
+Bwd PSH Flags,0.0,0.0,0.0,False
+Bwd IAT Tot,0.0,0.0,0.0,False
+Fwd IAT Std,0.0,0.0,0.0,False
+Fwd URG Flags,0.0,0.0,0.0,False
+Flow Byts/s,0.0,0.0,0.0,False
+Bwd Pkt Len Std,0.0,0.0,0.0,False
+Pkt Len Std,0.0,0.0,0.0,False
+Pkt Len Var,0.0,0.0,0.0,False
+Pkt Len Max,0.0,0.0,0.0,False
+Pkt Len Mean,0.0,0.0,0.0,False
+Pkt Len Min,0.0,0.0,0.0,False
+URG Flag Cnt,0.0,0.0,0.0,False
+PSH Flag Cnt,0.0,0.0,0.0,False
+RST Flag Cnt,0.0,0.0,0.0,False
+Fwd Seg Size Avg,0.0,0.0,0.0,False
+Bwd Seg Size Avg,0.0,0.0,0.0,False
+Fwd Byts/b Avg,0.0,0.0,0.0,True
+Fwd Pkts/b Avg,0.0,0.0,0.0,True
+Fwd Blk Rate Avg,0.0,0.0,0.0,True
+CWE Flag Count,0.0,0.0,0.0,False
+ECE Flag Cnt,0.0,0.0,0.0,False
+Pkt Size Avg,0.0,0.0,0.0,False
+Bwd Blk Rate Avg,0.0,0.0,0.0,True
+Bwd Pkts/b Avg,0.0,0.0,0.0,True
+Bwd Byts/b Avg,0.0,0.0,0.0,True
+Subflow Fwd Pkts,2.0,2.0,0.0,False
+Subflow Bwd Byts,0.0,0.0,0.0,False
+Subflow Fwd Byts,0.0,0.0,0.0,False
+Fwd Act Data Pkts,0.0,0.0,0.0,False
+Fwd Seg Size Min,20.0,20.0,0.0,False
+Active Mean,0.0,0.0,0.0,False
+Active Std,0.0,0.0,0.0,False
+Active Max,0.0,0.0,0.0,False
+Active Min,0.0,0.0,0.0,False
+Idle Mean,0.0,0.0,0.0,False
+Idle Std,0.0,0.0,0.0,False
+Idle Max,0.0,0.0,0.0,False
+Idle Min,0.0,0.0,0.0,False
