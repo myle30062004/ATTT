@@ -23,3 +23,8 @@ shap==0.54.1
 xgboost==3.4.1
 # CPU build; on Kali: pip install torch --index-url https://download.pytorch.org/whl/cpu
 torch==2.15.0
+# web demo (web/app.py)
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+python-multipart==0.0.34
+httpx==0.28.1

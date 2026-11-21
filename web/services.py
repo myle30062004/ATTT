@@ -29,7 +29,7 @@ SAMPLES_DIR = WEB / "samples"
 CACHE_DIR = WEB / "cache"
 CACHE_DIR.mkdir(exist_ok=True)
 SEV_RANK = {s: i for i, s in enumerate(SEVERITIES)}
-MAX_ALERT_FLOWS = 3000          # flagged flows turned into full alerts (explanations are per-row)
+MAX_ALERT_FLOWS = 1500          # flagged flows turned into full alerts (explanations are per-row)
 MAX_FLOW_ROWS = 400             # flow rows returned to the browser
 MAX_UPLOAD_PACKETS = 3_000_000  # safety cap for uploaded PCAPs
 
@@ -224,9 +224,14 @@ def analyze_frame(job: Job, frame: pd.DataFrame, source: dict) -> dict:
 
     flagged = scores.index[scores["is_anomaly"].to_numpy() | (scores["predicted_family"] != "BENIGN").to_numpy()]
     # explanations are built row by row: keep the most confident attack flows + anomalies
-    if len(flagged) > MAX_ALERT_FLOWS:
-        pri = scores.loc[flagged].assign(_a=lambda d: (d.predicted_family != "BENIGN").astype(int))
-        flagged = pri.sort_values(["_a", "confidence", "anomaly_score"], ascending=False).index[:MAX_ALERT_FLOWS]
+    n_flagged = len(flagged)
+    if n_flagged > MAX_ALERT_FLOWS:     # stratified by predicted family so every type stays visible
+        fl = scores.loc[flagged]
+        grp = np.where(fl["predicted_family"] == "BENIGN", "_anomaly", fl["predicted_family"])
+        quota = MAX_ALERT_FLOWS // len(set(grp))
+        keep = (fl.assign(_g=grp).sort_values("confidence", ascending=False)
+                  .groupby("_g", group_keys=False).head(quota).index)
+        flagged = pd.Index(sorted(keep, key=scores.index.get_loc))
     job.update(0.75, f"Sinh cảnh báo cho {len(flagged):,} flow đáng chú ý")
     sub = scorable.loc[flagged]
     if not has_meta:
@@ -236,7 +241,7 @@ def analyze_frame(job: Job, frame: pd.DataFrame, source: dict) -> dict:
     host_alerts, report = [], {"beacons": pd.DataFrame(), "host_scores": pd.DataFrame(), "topology": {}}
     if has_meta and len(frame):
         job.update(0.85, "Phân tích mức host: quét, beaconing, đồ thị")
-        host_alerts, report = pipe.analyze_hosts(pipe.host_flows_from_frame(frame), suspects)
+        host_alerts, report = host_analysis(pipe, pipe.host_flows_from_frame(frame), suspects)
 
     job.update(0.95, "Tổng hợp kết quả")
     fam_counts = scores["predicted_family"].value_counts().to_dict()
@@ -284,7 +289,7 @@ def analyze_frame(job: Job, frame: pd.DataFrame, source: dict) -> dict:
     host_rows = []
     if isinstance(hosts, pd.DataFrame) and not hosts.empty:
         cols = [c for c in ("src_ip", "total_connections", "unique_dst_ips", "unique_dst_ports", "failed_ratio",
-                            "dst_port_entropy", "botnet_score") if c in hosts]
+                            "dst_port_entropy", "botnet_score", "flagged_windows", "windows") if c in hosts]
         hs = hosts.sort_values("botnet_score" if "botnet_score" in hosts else "unique_dst_ips", ascending=False)
         host_rows = [{c: (_f(v, 3) if not isinstance(v, str) else v) for c, v in r.items()}
                      for r in hs[cols].head(15).to_dict("records")]
@@ -302,6 +307,7 @@ def analyze_frame(job: Job, frame: pd.DataFrame, source: dict) -> dict:
         "summary": {
             "flows_total": int(len(frame)), "flows_scored": int(len(scorable)), "flows_skipped_short": int(skipped),
             "attack_flows": int((scores["predicted_family"] != "BENIGN").sum()),
+            "flagged_flows": int(n_flagged), "alert_flows_detailed": int(len(flagged)),
             "anomalies": int(scores["is_anomaly"].sum()), "alerts": len(alerts),
             "hosts": int(frame["Src IP"].nunique()) if has_meta else None,
             "inference_ms": round(infer_s * 1000, 1),
@@ -321,6 +327,42 @@ def analyze_frame(job: Job, frame: pd.DataFrame, source: dict) -> dict:
         "evaluation": truth_eval,
         "missing_features": sorted(pipe.missing_feature_warnings),
     }
+
+
+WINDOW_S = float(CFG["realtime"]["host_window_s"])
+
+
+def host_analysis(pipe: DetectionPipeline, flows: pd.DataFrame, suspects: set[str]) -> tuple[list, dict]:
+    """Host-level analysis matched to how the host model was trained (300 s windows).
+
+    * host behaviour model + scan rules run per window (features such as connection
+      counts depend on the window length);
+    * beaconing and topology use the whole capture (a 120 s C&C period needs > 300 s
+      to show 8 connections) with every host flagged in any window as a suspect."""
+    alerts, flagged, scores = [], set(suspects), []
+    t0 = flows["start_time"].min()
+    win = ((flows["start_time"] - t0) // WINDOW_S).astype(int)
+    for w, g in flows.groupby(win, sort=True):
+        w_alerts, rep = pipe.analyze_hosts(g.reset_index(drop=True), set())
+        for a in w_alerts:
+            if a.detection_module in ("HostBehaviourModel", "HostScanRule"):
+                alerts.append(a)
+                flagged.add(a.src_ip)
+        hs = rep.get("host_scores")
+        if isinstance(hs, pd.DataFrame) and not hs.empty:
+            scores.append(hs.assign(window=int(w)))
+    full_alerts, report = pipe.analyze_hosts(flows, flagged)
+    alerts += [a for a in full_alerts if a.detection_module not in ("HostBehaviourModel", "HostScanRule")]
+    if scores:
+        hs = pd.concat(scores, ignore_index=True)
+        sort_col = "botnet_score" if "botnet_score" in hs else "unique_dst_ips"
+        agg = hs.sort_values(sort_col, ascending=False).drop_duplicates("src_ip")
+        if "botnet_score" in hs:
+            agg = agg.merge(hs.groupby("src_ip").agg(windows=("window", "nunique"),
+                                                     flagged_windows=("botnet_score", lambda v: int((v >= 0.5).sum()))),
+                            on="src_ip")
+        report["host_scores"] = agg
+    return alerts, report
 
 
 def analyze_pcap(job: Job, path: Path, source: dict) -> dict:
@@ -357,9 +399,14 @@ def read_flow_csv(path: Path) -> pd.DataFrame:
         if c in df:
             df[c] = pd.to_numeric(df[c], errors="coerce").replace([np.inf, -np.inf], np.nan)
     if "Timestamp" in df and "Start Time" not in df:
-        ts = pd.to_datetime(df["Timestamp"], errors="coerce", dayfirst=True)
-        if ts.notna().any():
-            df["Start Time"] = ts.astype("int64") / 1e9
+        num = pd.to_numeric(df["Timestamp"], errors="coerce")
+        if num.notna().all() and num.gt(1e8).all():               # epoch seconds / ms / ns
+            scale = 1e9 if num.max() > 1e17 else 1e3 if num.max() > 1e11 else 1.0
+            df["Start Time"] = num / scale
+        else:
+            ts = pd.to_datetime(df["Timestamp"], errors="coerce", dayfirst=True)
+            if ts.notna().any():
+                df["Start Time"] = (ts - pd.Timestamp("1970-01-01")).dt.total_seconds()
     for c in ("Src IP", "Dst IP"):
         if c in df:
             df[c] = df[c].astype(str)
@@ -425,7 +472,8 @@ def predict_flow(features: dict) -> dict:
     z = ((xg - pipe.gauss.mu) / np.sqrt(variances))[0] if hasattr(pipe.gauss, "mu") else np.zeros(len(pipe.gauss_features))
     ztop = np.argsort(-np.abs(z))[:6]
     verdict = FlowVerdict(is_anomaly=bool(scores["is_anomaly"].iat[0]), anomaly_score=float(scores["anomaly_score"].iat[0]),
-                          predicted_family=pipe.class_names[k], confidence=float(proba[k]))
+                          predicted_family=pipe.class_names[k], confidence=float(proba[k]),
+                          anomaly_features={}, classifier_features={})
     alert, to_host = pipe.engine.decide_flow(verdict, {"timestamp": "-", "src_ip": "?", "dst_ip": "?", "src_port": 0,
                                                         "dst_port": int(frame["Dst Port"].iat[0]), "protocol": 6})
     return {
@@ -483,7 +531,8 @@ def model_results() -> dict:
                        ("ablation", "feature_ablation.csv")):
         p = exp / fname
         out[key] = _read_csv(p) if key != "repeats" else (p.read_text() if p.exists() else None)
-    out["figures"] = sorted(p.name for p in (PROJECT_ROOT / "reports" / "figures").rglob("*.png"))
+    figdir = PROJECT_ROOT / "reports" / "figures"
+    out["figures"] = sorted(p.relative_to(figdir).as_posix() for p in figdir.rglob("*.png"))
     return out
 
 

@@ -30,13 +30,46 @@ OUT.mkdir(parents=True, exist_ok=True)
 CFG = load_config()
 
 
+def web_session(rng, src, dst, sport, dport, t0) -> list:
+    """TCP session with realistic variability: RTT, request size, multi-segment response, ACKs."""
+    S, A, P, F = dpkt.tcp.TH_SYN, dpkt.tcp.TH_ACK, dpkt.tcp.TH_PUSH, dpkt.tcp.TH_FIN
+    rtt = rng.uniform(0.004, 0.12)
+    cw, sw = int(rng.choice([64240, 65535, 29200])), int(rng.choice([65535, 26883, 28960, 8192]))
+    t, out = t0, []
+    out.append((t, tcp_frame(src, dst, sport, dport, S, window=cw)))
+    t += rtt
+    out.append((t, tcp_frame(dst, src, dport, sport, S | A, window=sw)))
+    t += rng.uniform(0.0002, 0.002)
+    out.append((t, tcp_frame(src, dst, sport, dport, A, window=cw)))
+    for _ in range(int(rng.integers(1, 4))):                 # keep-alive: 1-3 requests
+        t += rng.uniform(0.001, 0.4)
+        out.append((t, tcp_frame(src, dst, sport, dport, P | A, b"G" * int(rng.integers(180, 900)), window=cw)))
+        size = int(rng.lognormal(8.5, 1.3))
+        t += rtt + rng.uniform(0.001, 0.05)
+        while size > 0:
+            seg = min(size, 1460)
+            out.append((t, tcp_frame(dst, src, dport, sport, A | (P if seg < 1460 else 0), b"x" * seg, window=sw)))
+            size -= seg
+            t += rng.uniform(0.0001, 0.003)
+            if rng.random() < 0.5:
+                out.append((t, tcp_frame(src, dst, sport, dport, A, window=cw)))
+    t += rng.uniform(0.05, 5.0)
+    out.append((t, tcp_frame(src, dst, sport, dport, F | A, window=cw)))
+    t += rtt
+    out.append((t, tcp_frame(dst, src, dport, sport, F | A, window=sw)))
+    out.append((t + 0.0005, tcp_frame(src, dst, sport, dport, A, window=cw)))
+    return out
+
+
 def synthetic() -> Path:
     S = dpkt.tcp.TH_SYN
     t0, frames = 1_700_000_000.0, []
+    import numpy as np
+    rng = np.random.default_rng(2026)
     for h in range(1, 6):                                       # 5 normal clients browsing
         for i in range(60):
-            frames += tcp_session(src=f"192.168.10.{h}", dst=f"93.184.216.{(i % 7) + 1}", sport=40000 + i,
-                                  dport=443 if i % 3 else 80, t0=t0 + h * 1.7 + i * 14.0)
+            frames += web_session(rng, f"192.168.10.{h}", f"93.184.216.{(i % 7) + 1}", 40000 + i,
+                                  443 if i % 3 else 80, t0 + h * 1.7 + i * 14.0 + rng.uniform(0, 6))
     for i in range(40):                                         # DNS lookups
         frames.append((t0 + i * 20.0, udp_frame("192.168.10.2", "192.168.10.254", 53000 + i, 53, b"q" * 30)))
         frames.append((t0 + i * 20.0 + 0.01, udp_frame("192.168.10.254", "192.168.10.2", 53, 53000 + i, b"a" * 90)))
@@ -50,7 +83,7 @@ def synthetic() -> Path:
     return write_pcap(OUT / "synthetic_scan_beacon.pcap", sorted(frames, key=lambda f: f[0]))
 
 
-def ctu_slice(minutes_from: float = 10, minutes_len: float = 20) -> Path | None:
+def ctu_slice(minutes_from: float = 74, minutes_len: float = 20) -> Path | None:
     src = (ROOT / CFG["ctu13"]["pcap"]).resolve()
     if not src.exists():
         print("CTU-13 pcap not found, skipped:", src)
@@ -90,6 +123,8 @@ def test_csv(per_family: int = 1500) -> Path:
     parts = [g.sample(min(len(g), per_family), random_state=7) for _, g in df.groupby("Family")]
     sample = pd.concat(parts).sample(frac=1, random_state=7)
     sample = sample.drop(columns=[c for c in ("row_hash", "IsAttack", "Day", "RawLabel") if c in sample])
+    # processed parquet keeps Timestamp as epoch/1000 (int); write it back in CICFlowMeter's format
+    sample["Timestamp"] = pd.to_datetime(sample["Timestamp"].astype("int64") * 1000, unit="s").dt.strftime("%d/%m/%Y %H:%M:%S")
     out = OUT / "cicids2018_test_sample.csv"
     sample.to_csv(out, index=False)
     return out, len(sample)
@@ -125,9 +160,9 @@ def main() -> None:
     ]
     if ctu is not None:
         samples.insert(2, {"id": "ctu_neris", "kind": "pcap", "path": "web/samples/ctu13_neris_slice.pcap",
-                           "title": "CTU-13 kịch bản 1 – 20 phút, các host có nhãn",
-                           "description": "Máy 147.32.84.165 nhiễm Neris (IRC C&C, spam SMTP) cùng 6 máy bình thường. "
-                                          "Phân tích mức host phát hiện máy nhiễm.",
+                           "title": "CTU-13 kịch bản 1 – phút 74–94, các host có nhãn",
+                           "description": "Máy 147.32.84.165 bắt đầu hoạt động như bot Neris (IRC C&C, spam SMTP) từ phút 75, "
+                                          "cùng 6 máy bình thường. Phân tích mức host theo cửa sổ 300 s.",
                            "truth": "Botnet host 147.32.84.165"})
     for s in samples:
         p = Path(s["path"])

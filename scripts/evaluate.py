@@ -146,18 +146,15 @@ def stage_importance() -> None:
     table.sort_values("mean", ascending=False).to_csv(METRICS / "feature_importance_models.csv")
     p = MODELS / "lightgbm" / "multiclass" / "model.joblib"
     if p.exists():
-        import shap
+        # LightGBM's built-in TreeSHAP (pred_contrib) gives the same values as shap.TreeExplainer
+        # but in seconds instead of ~1 h for this 300-tree x 255-leaf x 7-class model.
         model = joblib.load(p)
         idx = stratified_indices(ys["test"], 3000)
-        explainer = shap.TreeExplainer(model)
-        sv = explainer.shap_values(xs["test"][idx])
-        sv = np.asarray(sv)
-        if sv.ndim == 3 and sv.shape[0] == len(idx):           # (n, features, classes)
-            mean_abs = np.abs(sv).mean(axis=(0, 2))
-            per_class = {c: np.abs(sv[:, :, i]).mean(0) for i, c in enumerate(classes)}
-        else:                                                   # list per class -> (classes, n, features)
-            mean_abs = np.abs(sv).mean(axis=(0, 1))
-            per_class = {c: np.abs(sv[i]).mean(0) for i, c in enumerate(classes)}
+        nf, k = len(features), len(classes)
+        contrib = model.booster_.predict(np.asarray(xs["test"][idx], dtype=np.float64), pred_contrib=True)
+        sv = contrib.reshape(len(idx), k, nf + 1)[:, :, :nf]   # (n, classes, features); drop bias term
+        mean_abs = np.abs(sv).mean(axis=(0, 1))
+        per_class = {c: np.abs(sv[:, i, :]).mean(0) for i, c in enumerate(classes)}
         shap_table = pd.DataFrame(per_class, index=features)
         shap_table["mean_abs_shap"] = mean_abs
         shap_table.sort_values("mean_abs_shap", ascending=False).to_csv(METRICS / "shap_lightgbm_multiclass.csv")

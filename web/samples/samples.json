@@ -1,0 +1,47 @@
+[
+  {
+    "id": "synthetic",
+    "kind": "pcap",
+    "path": "web/samples/synthetic_scan_beacon.pcap",
+    "title": "Kịch bản tổng hợp: quét cổng, quét host, beacon C&C",
+    "description": "Biết trước đáp án: 192.168.10.66 quét 1.024 cổng, 192.168.10.67 quét 120 host cổng 445, 192.168.10.7 gọi về 185.199.10.9:8080 mỗi 30 giây; còn lại là web/DNS bình thường.",
+    "truth": "PortScan · HostSweep · Beaconing",
+    "available": true
+  },
+  {
+    "id": "cic_bot",
+    "kind": "pcap",
+    "path": "data/raw/cicids2018_pcap/Friday-02-03-2018/capEC2AMAZ-O4EL3NG-172.31.69.26",
+    "title": "CICIDS2018 – PCAP gốc máy nạn nhân Bot (02/03/2018)",
+    "description": "Gói tin thật của testbed; máy 172.31.69.26 nhiễm bot gọi về C&C qua TCP 8080. Dùng để kiểm chứng feature parity với CICFlowMeter.",
+    "truth": "Botnet (C&C → 8080)",
+    "available": true
+  },
+  {
+    "id": "ctu_neris",
+    "kind": "pcap",
+    "path": "web/samples/ctu13_neris_slice.pcap",
+    "title": "CTU-13 kịch bản 1 – phút 74–94, các host có nhãn",
+    "description": "Máy 147.32.84.165 bắt đầu hoạt động như bot Neris (IRC C&C, spam SMTP) từ phút 75, cùng 6 máy bình thường. Phân tích mức host theo cửa sổ 300 s.",
+    "truth": "Botnet host 147.32.84.165",
+    "available": true
+  },
+  {
+    "id": "cic_csv",
+    "kind": "csv",
+    "path": "web/samples/cicids2018_test_sample.csv",
+    "title": "CICIDS2018 – 9.128 flow của tập test (có nhãn)",
+    "description": "Các dòng CICFlowMeter lấy phân tầng từ tập test độc lập (tối đa 1.500 dòng mỗi họ). Có cột Family nên web tính được ma trận nhầm lẫn và Macro-F1.",
+    "truth": "7 họ có nhãn",
+    "available": true
+  },
+  {
+    "id": "exercise",
+    "kind": "pcap",
+    "path": "../data/capture20110810.truncated.pcap/2026-10-01-traffic-analysis-exercise.pcap",
+    "title": "PCAP bài tập phân tích traffic (mạng khác, không nhãn)",
+    "description": "42.497 gói từ một mạng hoàn toàn khác testbed – minh hoạ dịch chuyển phân phối: cần hiệu chỉnh ngưỡng GMM trước khi triển khai.",
+    "truth": "Không có nhãn",
+    "available": true
+  }
+]

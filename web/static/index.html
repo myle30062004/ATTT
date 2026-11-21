@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NIDS Demo – Phát hiện tấn công mạng</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand">
+    <svg viewBox="0 0 40 34" class="logo"><path d="M12 2 2 17l10 15 10-15zM28 2 18 17l10 15 10-15z" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+    <div><b>NIDS</b><span>Học máy phát hiện tấn công</span></div>
+  </div>
+  <nav id="nav">
+    <a data-page="overview" class="active"><i>◆</i>Tổng quan</a>
+    <a data-page="analyze"><i>▤</i>Phân tích lưu lượng</a>
+    <a data-page="flow"><i>◎</i>Thử một flow</a>
+    <a data-page="realtime"><i>▶</i>Giám sát realtime</a>
+    <a data-page="results"><i>▥</i>Kết quả mô hình</a>
+  </nav>
+  <div class="side-foot">ATTT · Báo cáo cuối kỳ<br>22Nh15 · ĐH Bách Khoa Đà Nẵng</div>
+</aside>
+
+<main>
+  <!-- ======================= OVERVIEW ======================= -->
+  <section id="page-overview" class="page active">
+    <div class="hero">
+      <div>
+        <div class="kicker">ỨNG DỤNG HỌC MÁY PHÁT HIỆN TẤN CÔNG MẠNG</div>
+        <h1>Hệ thống phát hiện xâm nhập nhiều tầng</h1>
+        <p>Gói tin → flow hai chiều → 24 đặc trưng khớp CICFlowMeter → <b>Gaussian mixture</b> (bất thường) +
+          <b>LightGBM</b> (7 họ tấn công) → phân tích mức host (quét, beaconing, botnet, topology) → cảnh báo có mức độ.</p>
+        <div class="hero-actions">
+          <button class="btn primary" data-goto="analyze">Phân tích một PCAP mẫu</button>
+          <button class="btn ghost" data-goto="realtime">Xem giám sát realtime</button>
+        </div>
+      </div>
+      <div class="hero-stats" id="hero-stats"></div>
+    </div>
+
+    <h2 class="sec">Kiến trúc pipeline</h2>
+    <div class="arch">
+      <div class="arch-row">
+        <div class="abox tint"><b>Nguồn dữ liệu</b><span>PCAP · CSV CICFlowMeter · card mạng (Scapy)</span></div><div class="arr">➜</div>
+        <div class="abox"><b>Giải mã & dựng flow</b><span>decode_frame() · FlowBuilder · FIN/RST, 120 s</span></div><div class="arr">➜</div>
+        <div class="abox"><b>Làm sạch & đặc trưng</b><span>FlowCleaner (fit trên train) · 24 đặc trưng parity-safe</span></div><div class="arr">➜</div>
+        <div class="abox"><b>Đặc trưng host</b><span>cửa sổ 300 s · 18 đặc trưng · đồ thị liên lạc</span></div>
+      </div>
+      <div class="arch-row tiers">
+        <div class="abox"><em></em><b>Tầng 1 · GMM</b><span id="ov-gmm">log p(x) &lt; ε → bất thường</span></div>
+        <div class="abox"><em></em><b>Tầng 2 · LightGBM</b><span>7 họ; xác suất &lt; 0,6 → Uncertain</span></div>
+        <div class="abox"><em></em><b>Tầng 3 · Mức host</b><span>quét cổng/host · beaconing · RF host</span></div>
+        <div class="abox"><em></em><b>Topology</b><span>centralized / P2P – bỏ phiếu nhiều chỉ số</span></div>
+      </div>
+      <div class="abox dark wide"><b>Bộ quyết định & cảnh báo</b><span>INFO → CRITICAL · gộp cảnh báo lặp 30 s · JSON / CSV / SQLite</span></div>
+    </div>
+
+    <h2 class="sec">Bắt đầu nhanh</h2>
+    <div class="grid3" id="ov-samples"></div>
+  </section>
+
+  <!-- ======================= ANALYZE ======================= -->
+  <section id="page-analyze" class="page">
+    <h1 class="title">Phân tích lưu lượng</h1>
+    <p class="lead">Chọn một mẫu có sẵn hoặc tải lên <b>.pcap / .pcapng</b> (gói tin) hay <b>.csv</b> (flow CICFlowMeter, có cột <code>Label</code>/<code>Family</code> thì web tính luôn độ chính xác).</p>
+    <div class="analyze-top">
+      <div class="samples" id="sample-list"></div>
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept=".pcap,.pcapng,.cap,.csv" hidden>
+        <div class="drop-ico">⇪</div>
+        <b>Kéo thả hoặc chọn file</b>
+        <span>PCAP / PCAPNG / CSV · tối đa 300 MB</span>
+      </label>
+    </div>
+    <div id="job" class="card job hidden">
+      <div class="job-head"><b id="job-name"></b><span id="job-msg"></span></div>
+      <div class="bar"><div id="job-bar"></div></div>
+    </div>
+    <div id="result" class="hidden"></div>
+  </section>
+
+  <!-- ======================= SINGLE FLOW ======================= -->
+  <section id="page-flow" class="page">
+    <h1 class="title">Thử một flow</h1>
+    <p class="lead">Lấy ngẫu nhiên một flow thật của <b>tập test</b> (không dùng khi huấn luyện), sửa giá trị đặc trưng nếu muốn, rồi xem từng tầng quyết định thế nào.</p>
+    <div class="flow-ctl card">
+      <span>Họ:</span>
+      <div class="chips" id="fam-chips"></div>
+      <button class="btn primary" id="btn-random">Lấy flow ngẫu nhiên</button>
+      <button class="btn ghost" id="btn-predict">Dự đoán lại</button>
+    </div>
+    <div class="flow-grid">
+      <div class="card">
+        <h3>Đặc trưng đầu vào <small id="flow-truth"></small></h3>
+        <div id="feat-form" class="feat-form"></div>
+      </div>
+      <div class="flow-out">
+        <div class="card" id="flow-decision"></div>
+        <div class="card"><h3>Xác suất theo lớp (LightGBM)</h3><canvas id="ch-proba" height="190"></canvas></div>
+        <div class="card"><h3>Đóng góp của đặc trưng (SHAP – lớp dự đoán)</h3><canvas id="ch-contrib" height="230"></canvas></div>
+        <div class="card"><h3>Gaussian mixture – điểm bất thường</h3><div id="gauge"></div><div id="z-list" class="zlist"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= REALTIME ======================= -->
+  <section id="page-realtime" class="page">
+    <h1 class="title">Giám sát thời gian thực</h1>
+    <p class="lead">Phát lại PCAP qua đúng đường xử lý realtime (hàng đợi → FlowBuilder → phát hiện mỗi 5 s theo thời gian gói), hoặc bắt gói trực tiếp trên Kali khi bật <code>NIDS_ALLOW_LIVE=1</code>.</p>
+    <div class="card rt-ctl">
+      <div class="seg" id="rt-mode"><button data-v="replay" class="on">Phát lại PCAP</button><button data-v="live">Card mạng</button></div>
+      <select id="rt-sample"></select>
+      <select id="rt-iface" class="hidden"></select>
+      <label>Tốc độ <select id="rt-speed"><option value="10">×10</option><option value="50" selected>×50</option><option value="200">×200</option><option value="0">Tối đa</option></select></label>
+      <button class="btn primary" id="rt-start">Bắt đầu</button>
+      <button class="btn ghost" id="rt-stop" disabled>Dừng</button>
+      <span id="rt-state" class="muted"></span>
+    </div>
+    <div class="kpis" id="rt-kpis"></div>
+    <div class="rt-grid">
+      <div class="card"><h3>Lưu lượng theo thời gian</h3><canvas id="ch-rt" height="210"></canvas></div>
+      <div class="card"><h3>Dự đoán theo họ</h3><canvas id="ch-rt-fam" height="210"></canvas></div>
+    </div>
+    <div class="card"><h3>Luồng cảnh báo <small>mới nhất ở trên</small></h3><div id="rt-feed" class="feed"></div></div>
+  </section>
+
+  <!-- ======================= RESULTS ======================= -->
+  <section id="page-results" class="page">
+    <h1 class="title">Kết quả mô hình</h1>
+    <p class="lead">Số liệu đọc trực tiếp từ <code>reports/</code> của dự án. Mô hình có giám sát được so sánh trên <b>validation</b>; bảng <b>test</b> xuất hiện khi <code>evaluate.py</code> chạy xong.</p>
+    <div id="res"></div>
+  </section>
+</main>
+
+<div id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

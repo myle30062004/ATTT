@@ -22,6 +22,15 @@ Live (Scapy)─┘                                    └─ Attack classifier �
 
 Offline và realtime dùng **cùng** bộ giải mã gói, bộ dựng flow, công thức đặc trưng, cleaner và scaler (feature parity).
 
+## Web demo
+
+```bash
+python web/make_samples.py                                  # mẫu demo (một lần)
+python -m uvicorn web.app:app --host 127.0.0.1 --port 8000  # mở http://127.0.0.1:8000
+```
+
+Phân tích PCAP/CSV (tải lên hoặc mẫu có sẵn), thử một flow kèm giải thích SHAP, giám sát realtime (phát lại PCAP; bắt gói trực tiếp trên Kali với `NIDS_ALLOW_LIVE=1`), và trang kết quả mô hình. Web dùng đúng `DetectionPipeline` + bundle triển khai. Chi tiết: [docs/WEB_DEMO.md](docs/WEB_DEMO.md).
+
 ## Cấu trúc thư mục
 
 ```
@@ -32,6 +41,7 @@ src/graph/                  graph_builder, topology_analyzer, beaconing_detector
 src/detection/              decision_engine, alert_manager, detection_pipeline, bundle
 src/realtime/               packet_capture (Scapy / PCAP replay), realtime_processor, monitor
 src/utils/                  config, logger, metrics, visualization
+web/                        web demo: app.py (FastAPI), services.py, realtime.py, static/, make_samples.py
 scripts/                    download_dataset, preprocess_dataset, train, train_anomaly, evaluate, botnet_analysis,
                             build_bundle, process_pcap, run_realtime, lab/ (kịch bản lab)
 notebooks/                  01_data_exploration.ipynb (+ build_notebooks.py để sinh lại)

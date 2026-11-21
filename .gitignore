@@ -15,3 +15,6 @@ __pycache__/
 .ipynb_checkpoints/
 *.pyc
 .venv/
+# web demo runtime cache and generated samples (rebuild: python web/make_samples.py)
+web/cache/
+web/samples/*.csv

@@ -58,3 +58,20 @@ Chạy test: `& "C:\Users\KIM AN\.venvs\nids\Scripts\python.exe" -m pytest` tron
 * OneDrive hết dung lượng → dự án chuyển sang `C:\Users\KIM AN\network-ids`, PCAP CTU-13 sang `C:\Users\KIM AN\data\capture20110810.truncated.pcap\` (sao chép bằng robocopy, đối chiếu 322 file khớp từng byte, 38 test pass, rồi mới xoá bản OneDrive).
 * `config/config.yaml`: đường dẫn PCAP đổi thành `../data/capture20110810.truncated.pcap/...`.
 * MLP nhị phân bị dừng ở epoch 23 khi chuyển; đang chạy lại từ đầu, sau đó so sánh scaler.
+
+## Hoàn thiện + web demo – 2026-11-21 (tối)
+
+* **MLP nhị phân: XONG** (12:48, best epoch 39/40) – val Macro-F1 0,937, FPR 1,1%, FNR 11,6%; test 0,937. So sánh scaler: XONG (`reports/experiments/scaler_comparison.csv`, minmax+log tốt nhất 0,826).
+* **evaluate.py**
+  * `test`: XONG (20:36) – `reports/metrics/model_comparison_{multiclass,binary}.csv`, `cm_*`, `per_class_*`, `roc_*/pr_*`.
+    7 lớp: RF 0,911 · LightGBM 0,909 · XGBoost 0,906 · CatBoost 0,900 · MLP 0,876 · DT 0,875 · LR 0,735.
+    Nhị phân: LightGBM = CatBoost 0,945 · XGBoost 0,944 · RF 0,944 · DT 0,938 · MLP 0,937 · LR 0,884.
+  * `importance`: `shap.TreeExplainer` treo ~1 giờ trên LightGBM 300 cây × 255 lá × 7 lớp → đổi sang TreeSHAP gốc
+    của LightGBM (`booster_.predict(pred_contrib=True)`, cùng giá trị). Đang chạy lại cùng `temporal`, `ablation`, `repeats`
+    (log: `logs/stage_evaluate_rest.out`).
+* **Sửa lỗi realtime replay** (`src/realtime/realtime_processor.py`): ở tốc độ tối đa một lô 5.000 gói có thể nhảy vài
+  phút thời gian gói nên flow quét cổng rời cửa sổ host trước khi được phân tích → nay dừng lô tại mỗi khoảng
+  `detection_interval_s` theo thời gian gói. 41/41 test pass.
+* **Web demo: XONG** – `web/` (FastAPI + HTML/JS), hướng dẫn `docs/WEB_DEMO.md`, test `tests/test_web_demo.py` (3 pass).
+  Chạy: `python -m uvicorn web.app:app --port 8000`. Mẫu: `python web/make_samples.py`.
+* Còn lại: dựng lại báo cáo Word + slide với số liệu test/MLP nhị phân/seed khi evaluate xong; kịch bản lab realtime (E12) vẫn chưa chạy.

@@ -131,6 +131,12 @@ class RealtimeProcessor:
                     ts, frame, linktype = source_queue.get(timeout=0.2)
                     self.handle_frame(ts, frame, linktype)
                     got += 1
+                    # replay: stop at the detection boundary in *packet* time, otherwise a fast
+                    # replay jumps minutes per batch and short flows (scans) leave the host
+                    # window before they are ever analysed
+                    if (self.replay_clock and last_detect_packet_time is not None
+                            and self._packet_now - last_detect_packet_time >= self.interval):
+                        break
             except queue.Empty:
                 pass
             if self.replay_clock:

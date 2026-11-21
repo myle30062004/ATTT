@@ -103,6 +103,9 @@ class Session:
                         ts, frame, lt = src.get(timeout=0.2)
                         proc.handle_frame(ts, frame, lt)
                         got += 1
+                        if (proc.replay_clock and last_packet_t is not None
+                                and proc._packet_now - last_packet_t >= interval):
+                            break      # run detection at every interval of packet time
                 except queue.Empty:
                     pass
                 emitted = None
